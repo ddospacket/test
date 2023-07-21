@@ -12,7 +12,10 @@ class NumberCheckerMod(loader.Module):
         if response.reply_markup and hasattr(response.reply_markup, "rows"):
             buttons = response.reply_markup.rows
             if buttons and len(buttons) >= 1:
-                await response.click(0)
+                for button in buttons[0].buttons:
+                    if button.text == "Пробив":
+                        await button.click()
+                        break
 
     @loader.unrestricted
     @loader.ratelimit
@@ -24,7 +27,6 @@ class NumberCheckerMod(loader.Module):
             return
 
         number = args.strip()
-        await message.edit(f"<b>Waiting... {number}</b>")
 
         try:
             async with message.client.conversation(BOT_ID) as conv:
