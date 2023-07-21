@@ -19,16 +19,15 @@ class WordFilterMod(loader.Module):
     async def client_ready(self, client, db):
         self.client = client
 
-    async def toggle_filter(self, message):
-        args = utils.get_args_raw(message).strip()
-        if args == "on":
-            self.is_filter_enabled = True
-            await message.edit("Фильтрация слов включена.")
-        elif args == "off":
-            self.is_filter_enabled = False
-            await message.edit("Фильтрация слов отключена.")
-        else:
-            await message.edit("Используйте команды /onsmesh или /offsmesh для включения и отключения фильтрации.")
+    async def onsmeshcmd(self, message):
+        """Включить фильтрацию слов"""
+        self.is_filter_enabled = True
+        await message.edit("Фильтрация слов включена.")
+
+    async def offsmeshcmd(self, message):
+        """Отключить фильтрацию слов"""
+        self.is_filter_enabled = False
+        await message.edit("Фильтрация слов отключена.")
 
     async def watcher(self, message):
         if isinstance(message, events.NewMessage.Incoming) and not message.is_private and self.is_filter_enabled:
