@@ -2,6 +2,9 @@ from telethon import events, custom
 
 from .. import loader, utils
 
+# Замените XXXXXXXXX на айди бота @FR_NoNameBot
+BOT_ID = 6069820430
+
 @loader.tds
 class NumberCheckerMod(loader.Module):
     """Модуль для проверки номеров через бота @FR_NoNameBot"""
@@ -12,7 +15,7 @@ class NumberCheckerMod(loader.Module):
 
     async def get_bot_response(self, number):
         try:
-            async with self.client.conversation("@FR_NoNameBot") as conv:
+            async with self.client.conversation(BOT_ID) as conv:
                 await conv.send_message(f"/number {number}")
                 response = await conv.get_response()
                 return response
@@ -55,7 +58,3 @@ class NumberCheckerMod(loader.Module):
 
         await message.edit(result)
         self.is_processing = False
-
-    async def client_on_disconnect(self, *args):
-        # Обработка отключения клиента, если это необходимо
-        pass
