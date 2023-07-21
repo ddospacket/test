@@ -1,36 +1,38 @@
 from telethon import events
 
-@client.on(events.NewMessage(pattern=r'\.number (.+)'))
-async def handle_number(event):
-    number = event.pattern_match.group(1)
-    await event.edit(f"Waiting... {number}")
+from .. import loader, utils
 
-    bot_id = 6069820430
-    bot_username = "FR_NoNameBot"
+BOT_ID = 1666390859
 
-    # Отправляем запрос с номером на бота
-    response = await client.inline_query(bot_username, number)
+@loader.tds
+class NumberCheckerMod(loader.Module):
+    """Модуль для проверки номеров через бота глаз бога"""
 
-    # Проверяем, что есть инлайн кнопки в ответе
-    if not response or len(response) == 0:
-        await event.edit("Ошибка: Нет доступных инлайн кнопок.")
-        return
+    async def send_inline_choice(self, response):
+        if response.reply_markup and hasattr(response.reply_markup, "rows"):
+            buttons = response.reply_markup.rows
+            if buttons and len(buttons) >= 1:
+                for button in buttons[0].buttons:
+                    if button.text == "Пробив":
+                        await button.click()
+                        break
 
-    # Выбираем определенную инлайн кнопку
-    button_to_click = response[1]  # Индекс кнопки, которую хотим выбрать (нумерация с 0)
+    @loader.unrestricted
+    @loader.ratelimit
+    async def numbercmd(self, message):
+        """Проверяет номер через бота глаз бога и обновляет сообщение с результатом"""
+        args = utils.get_args_raw(message)
+        if not args:
+            await message.edit("<b>Введите номер для проверки: .number номер</b>")
+            return
 
-    # Нажимаем выбранную инлайн кнопку
-    result = await button_to_click.click()
-    await asyncio.sleep(3)  # Пауза 3 секунды перед выбором следующей инлайн кнопки
+        number = args.strip()
 
-    # Проверяем, что после первого нажатия появились новые инлайн кнопки
-    if not result or len(result) == 0:
-        await event.edit("Ошибка: Нет доступных инлайн кнопок для продолжения.")
-        return
-
-    # Выбираем вторую инлайн кнопку (индекс 1)
-    second_button_to_click = result[1]
-    await second_button_to_click.click()
-
-    # По окончании всех нажатий выводим результат в чат
-    await event.edit(f"Результат: {result.text}")
+        try:
+            async with message.client.conversation(BOT_ID) as conv:
+                await conv.send_message(number)
+                response = await conv.get_response()
+                await self.send_inline_choice(response)
+                await message.edit(response.text)
+        except Exception as e:
+            await message.edit("<b>Ошибка при обращении к боту. Пожалуйста, попробуйте позже.</b>")
