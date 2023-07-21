@@ -2,11 +2,11 @@ from telethon import events
 
 from .. import loader, utils
 
-BOT_ID = 1666390859
+BOT_ID = 1022435554
 
 @loader.tds
-class NumberCheckerMod(loader.Module):
-    """Модуль для проверки номеров через бота глаз бога"""
+class OldNameCheckerMod(loader.Module):
+    """Модуль для проверки старых имен в VK через бота проверки"""
 
     async def send_inline_choice(self, response):
         if response.reply_markup and hasattr(response.reply_markup, "rows"):
@@ -19,18 +19,18 @@ class NumberCheckerMod(loader.Module):
 
     @loader.unrestricted
     @loader.ratelimit
-    async def numbercmd(self, message):
-        """Проверяет номер через бота глаз бога и обновляет сообщение с результатом"""
+    async def idcmd(self, message):
+        """Проверяет старое имя в VK через бота проверки и обновляет сообщение с результатом"""
         args = utils.get_args_raw(message)
         if not args:
-            await message.edit("<b>Введите номер для проверки: .number номер</b>")
+            await message.edit("<b>Введите старое имя для проверки: .id имя</b>")
             return
 
-        number = args.strip()
+        name = args.strip()
 
         try:
             async with message.client.conversation(BOT_ID) as conv:
-                await conv.send_message(number)
+                await conv.send_message(name)
                 response = await conv.get_response()
                 await self.send_inline_choice(response)
                 await message.edit(response.text)
