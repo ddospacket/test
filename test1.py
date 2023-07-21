@@ -30,7 +30,7 @@ class NumberCheckerMod(loader.Module):
 
         try:
             async with message.client.conversation(BOT_ID) as conv:
-                await conv.send_message(f"/number {number}")
+                await conv.send_message(number)
                 response = await conv.get_response()
                 await self.send_inline_choice(response)
                 await message.edit(response.text)
